@@ -41,7 +41,7 @@ p.images img {
 	
 	flex-grow: 1;
 }
-img:only-of-type {
+p:not(.images) img {
   display: block;
   margin: 15px auto 0;
   

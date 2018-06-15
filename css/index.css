@@ -10,6 +10,8 @@
 
 html {
 	background: whitesmoke;
+	
+	min-widths: 1024px;
 }
 
 body {
