@@ -1,0 +1,81 @@
+@import 'article.css';
+
+canvas {
+	background: url(../assets/skintools/transparency.png) top left / 16px;
+	box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+	display: block;
+	image-rendering: pixelated;
+	margin: 10px auto;
+	
+	max-width: 100%;
+}
+button {
+	background: dodgerblue;
+	border-radius: 5px;
+	color: white;
+	font: inherit;
+	line-height: 32px;
+	padding: 0 10px;
+	
+	height: 32px;
+}
+button:active {
+	transform: translateY(2px);
+}
+
+canvas.empty, input:disabled, button:disabled, a[disabled] {
+	opacity: 0.5;
+	pointer-events: none;
+}
+
+.settings {
+	margin: 10px;
+	
+	display: flex;
+	justify-content: center;
+}
+.settings div {
+	padding: 3px 10px;
+	
+	display: flex;
+	align-items: center;
+}
+.settings div:not(:last-child) {
+	border-right: 2px solid #ddd;
+}
+
+#converter-output {
+	min-width: 512px;
+}
+
+
+form {
+	display: flex;
+}
+form input, form button {
+	border-radius: 5px;
+	font: inherit;
+	line-height: 50px;
+	padding: 0 20px;
+	
+	height: 50px;
+}
+form input {
+	background: whitesmoke;
+	margin-right: 10px;
+	
+	flex-grow: 1;
+}
+
+#error {
+	color: tomato;
+}
+#error:empty {
+	display: none;
+}
+
+img {
+	image-rendering: pixelated;
+	
+	min-width: 25%;
+}

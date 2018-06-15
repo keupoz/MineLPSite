@@ -1,0 +1,15 @@
+@import 'article.css';
+
+p.button {
+	margin: 20px;
+	text-align: center;
+	text-indent: 0;
+}
+a.download-button {
+	background: dodgerblue;
+	border-radius: 5px;
+	color: white !important;
+	display: inline-block;
+	margin: auto;
+	padding: 20px 30px;
+}

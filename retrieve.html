@@ -1,0 +1,46 @@
+---
+layout: page
+permalink: "/retrieve/"
+page: "retrieve"
+css: "retriever"
+---
+<h1>Skin retriever</h1>
+<p>Here you can get your skin from the Mine Little Pony server. If image is loaded, just save it like you usually save images from web pages</p>
+
+<form>
+	<input type="text" name="nickname" spellcheck="off" placeholder="Enter your nickname here and press Enter">
+	<button type="submit">Retrieve</button>
+</form>
+<p id="error"></p>
+<img>
+
+<script>
+function getSkinUrl (nickname, callback) {
+	fetch('https://api.minetools.eu/uuid/' + nickname)
+		.then(function (response) {
+			if (response.ok) return response.json();
+			else callback(undefined, undefined, 'FAILED');
+		}).then(function (response) {
+			if (response.id == 'null') callback(undefined, undefined, 'NO_UUID');
+			else callback('http://skins.voxelmodpack.com/skins/' + response.id + '.png', response.name);
+		});
+}
+
+let
+form  = document.querySelector('form'),
+img   = document.querySelector('img'),
+error = document.querySelector('#error');
+
+form.addEventListener('submit', function (e) {
+	e.preventDefault();
+	this.nickname.blur();
+	getSkinUrl(this.nickname.value.trim(), function (url, nickname, err) {
+		if (err) {
+			error.innerText = 'Error: ' + err;
+		} else {
+			error.innerText = '';
+			img.src = url;
+		}
+	});
+});
+</script>
