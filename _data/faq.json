@@ -21,7 +21,11 @@
 	},
 	{
 		"question": "How to retrieve my skin from the server?",
-		"answer": "If you are using an official Minecraft account you can do it [here](/retrieve/)"
+		"answer": "If you are using an official Minecraft account you can do it ",
+		"relative_link": {
+			"name": "here",
+			"url": "/tools/#retriever"
+		}
 	},
 	{
 		"question": "Where to report bugs?",
