@@ -13,14 +13,17 @@ title: "Tools"
 </ul>
 
 <h2 id="retriever">Skin retriever</h2>
-<p>Here you can get your skin from the Mine Little Pony server. If image is loaded, just save it like you usually save images from web pages</p>
+<p>Here you can get your skin from the Mine Little Pony server. After image is loaded, just click on it to download</p>
 
-<form>
-	<input type="text" name="nickname" spellcheck="off" placeholder="Enter your nickname here and press Enter">
-	<button type="submit">Retrieve</button>
+<form id="retriever-form">
+	<div id="retriever-wrapper">
+		<div id="retriever-progress"></div>
+		<input type="text" name="nickname" spellcheck="off" placeholder="Enter your nickname here and press Enter">
+	</div>
+	<button type="submit" name="submit">Retrieve</button>
 </form>
-<p id="error"></p>
-<p><img></p>
+<p id="retriever-error"></p>
+<p><img id="retriever-output"></p>
 
 <h2 id="converter">Skin converter</h2>
 <p>Supported layouts: complex, pre-1.8 and basic pre-1.8 (with transparent cutiemark area)</p>
@@ -49,7 +52,10 @@ title: "Tools"
 
 <script src="{{ '/assets/FileSaver.js' | relative_url }}"></script>
 <script>
-const LOG_2 = Math.log(2);
+const
+LOG_2 = Math.log(2),
+
+SKINS_URL = 'https://ponyskins.herokuapp.com/';
 
 let
 converter = document.querySelector('#converter-output').getContext('2d'),
@@ -224,32 +230,62 @@ $converter_download.addEventListener('click', () => save(converter.canvas, $conv
 $resizer_download.addEventListener('click', () => save(resizer.canvas, $resizer_file.files[0].name, 'x' + canvas.width));
 
 
-function getSkinUrl (nickname, callback) {
-	fetch('https://api.minetools.eu/uuid/' + nickname)
-		.then(function (response) {
-			if (response.ok) return response.json();
-			else callback(undefined, undefined, 'FAILED');
-		}).then(function (response) {
-			if (response.id == 'null') callback(undefined, undefined, 'NO_UUID');
-			else callback('http://skins.voxelmodpack.com/skins/' + response.id + '.png', response.name);
-		});
+let
+$form     = document.querySelector('#retriever-form'),
+$progress = document.querySelector('#retriever-progress'),
+$img      = document.querySelector('#retriever-output'),
+$error    = document.querySelector('#retriever-error'),
+
+retriever_busy     = false,
+retriever_blob     = null,
+retriever_nickname = '';
+
+$img.addEventListener('load', function () {
+	retriever_busy = $form.submit.disabled = false;
+	$progress.classList.remove('show');
+});
+$img.addEventListener('click', function () {
+	if (retriever_blob) saveAs(retriever_blob, retriever_nickname + '.png');
+});
+
+function processResult (e) {
+	if (this.status == 200) {
+		retriever_blob = this.response;
+		retriever_nickname = this.getResponseHeader('X-Nickname');
+		URL.revokeObjectURL($img.src);
+		$img.src = URL.createObjectURL(retriever_blob);
+		$error.innerText = '';
+	} else {
+		let F = new FileReader();
+		F.onload = function () {
+			$error.innerText = this.result;
+			retriever_busy = $form.submit.disabled = false;
+			$progress.classList.remove('show');
+		};
+		F.readAsText(this.response);
+	}
 }
 
-let
-form  = document.querySelector('form'),
-img   = document.querySelector('img'),
-error = document.querySelector('#error');
-
-form.addEventListener('submit', function (e) {
+$form.addEventListener('submit', function (e) {
 	e.preventDefault();
+	
+	if (retriever_busy) return;
+	
+	retriever_busy = this.submit.disabled = true;
+	$progress.style.width = 0;
+	$progress.classList.add('show');
+	
 	this.nickname.blur();
-	getSkinUrl(this.nickname.value.trim(), function (url, nickname, err) {
-		if (err) {
-			error.innerText = 'Error: ' + err;
-		} else {
-			error.innerText = '';
-			img.src = url;
-		}
-	});
+	
+	let xhr = new XMLHttpRequest();
+	
+	xhr.open('GET', SKINS_URL + this.nickname.value.trim());
+	xhr.responseType = 'blob';
+		
+	xhr.onprogress = function (e) {
+		$progress.style.width = e.loaded / e.total * 100 + '%';
+	};
+	xhr.onload = xhr.onerror = processResult;
+	xhr.send();
 });
 </script>

@@ -49,32 +49,55 @@ canvas.empty, input:disabled, button:disabled, a[disabled] {
 }
 
 
-form {
+#retriever-form {
 	display: flex;
 }
-form input, form button {
+#retriever-wrapper {
 	border-radius: 5px;
+	margin-right: 10px;
+	overflow: hidden;
+	
+	position: relative;
+	
+	flex-grow: 1;
+}
+#retriever-progress {
+	background: dodgerblue;
+	transition: width, height;
+	transition-duration: 250ms;
+	transition-timing-function: linear;
+	
+	max-width: 100%;
+	width: 0; height: 0;
+	
+	position: absolute;
+	bottom: 0;
+}
+#retriever-progress.show {
+	height: 5px;
+}
+#retriever-form input, #retriever-form button {
 	font: inherit;
 	line-height: 50px;
 	padding: 0 20px;
 	
 	height: 50px;
 }
-form input {
+#retriever-form input {
 	background: whitesmoke;
-	margin-right: 10px;
+	display: block;
 	
-	flex-grow: 1;
+	width: 100%;
 }
 
-#error {
+#retriever-error {
 	color: tomato;
 }
-#error:empty {
+#retriever-error:empty {
 	display: none;
 }
 
-img {
+#retriever-output {
 	image-rendering: pixelated;
 	
 	min-width: 25%;
