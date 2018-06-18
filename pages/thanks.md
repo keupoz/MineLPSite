@@ -3,6 +3,7 @@ layout: page
 permalink: "/legacy/thanks/"
 path: "thanks"
 css: "thanks"
+title: "Original thanks"
 ---
 ## What is this page
 Here is a copy of original "About" page on Verdana's mod site ([archive](https://web.archive.org/web/20150418140823/http://www.minelittlepony.com:80/wiki/Mine_Little_Pony:About){:target="_blank"})

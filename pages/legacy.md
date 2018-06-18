@@ -3,6 +3,7 @@ layout: page
 permalink: "/legacy/"
 path: "legacy"
 css: "legacy"
+title: "Archive"
 ---
 ## Original thanks
 Verdana made a page with words of thanks to contributors of mod which you can read [here](thanks)
