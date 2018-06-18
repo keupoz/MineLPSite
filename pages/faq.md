@@ -2,7 +2,7 @@
 layout: page
 permalink: "/faq/"
 path: "faq"
-css: "article2"
+css: "article"
 title: "FAQ"
 ---
 ## Questions
@@ -13,4 +13,5 @@ title: "FAQ"
 {% for item in site.data.faq %}
 ## {{ item.question }} {#faq{{ forloop.index }}}
 {{ item.answer }}{% if item.relative_link != nil %}[{{ item.relative_link.name }}]({{ item.relative_link.url | relative_url }}){% endif %}
+{:.margin}
 {% endfor %}

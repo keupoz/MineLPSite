@@ -60,3 +60,7 @@ blockquote p {
 	padding: 20px 30px;
 	text-indent: 0;
 }
+
+.margin {
+	margin-bottom: 2em;
+}

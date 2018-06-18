@@ -49,4 +49,4 @@ As of Minecraft 1.8, skins now have an extra layer all over the body as opposed 
 > Download the converter to quickly convert skins and resource packs to the new format\\
 > Later versions of the mod will convert textures for you. The converter is not needed to simply use the old skins\\
 > \\
-> [Download converter]({{ '/assets/downloads/SkinConverter-1.0.1.jar' | relative_url }}){:.download-button download="SkinConverter-1.0.1.jar"}
+> [Download converter]({{ '/assets/files/SkinConverter-1.0.1.jar' | relative_url }}){:.download-button}
