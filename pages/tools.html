@@ -26,14 +26,11 @@ title: "Tools"
 <p><img id="retriever-output"></p>
 
 <h2 id="converter">Skin converter</h2>
-<p>Supported layouts: complex, pre-1.8 and basic pre-1.8 (with transparent cutiemark area)</p>
-<blockquote><p>
-	Skin only can be converted to a higher version<!--<br>
-	But you can reconvert the complex layout (mirror parts)--> <!-- in plans -->
-</p></blockquote>
+<p>This tool can convert your skin from basic pre-1.8 and pre-1.8 skin layout to the new skin layout</p>
+<blockquote><p>For old pre-1.8 layout, butt part can't be fully converted because of its limited area in the new layout</p></blockquote>
 <div class="settings">
 	<div><input id="converter-file" type="file" accept="image/png"></div>
-	<div><input id="converter-complex" type="checkbox" disabled>&nbsp;&nbsp;&nbsp;<label for="converter-complex">Complex layout</label></div>
+	<div><input id="converter-mirror" type="checkbox" disabled>&nbsp;&nbsp;&nbsp;<label for="converter-mirror">Mirror</label></div>
 	<div><button id="converter-download" disabled>Download</button><!--&nbsp;&nbsp;&nbsp;<a href="#resizer" title="Load the result to resizer tool" disabled>Resize</a>--></div>
 </div>
 <canvas id="converter-output" class="empty" width="512" height="256"></canvas>
@@ -67,11 +64,11 @@ resizer_holder   = document.createElement('canvas').getContext('2d'),
 resizer_pixels   = document.createElement('canvas').getContext('2d'),
 
 $converter_file       = document.querySelector('#converter-file'),
-$converter_complex    = document.querySelector('#converter-complex'),
+$converter_mirror     = document.querySelector('#converter-mirror'),
 $converter_download   = document.querySelector('#converter-download'),
-$resizer_file         = document.querySelector('#resizer-file');
-$resizer_size         = document.querySelector('#resizer-size');
-$resizer_current_size = document.querySelector('#resizer-current-size');
+$resizer_file         = document.querySelector('#resizer-file'),
+$resizer_size         = document.querySelector('#resizer-size'),
+$resizer_current_size = document.querySelector('#resizer-current-size'),
 $resizer_download     = document.querySelector('#resizer-download'),
 
 converter_basic = false;
@@ -94,18 +91,64 @@ function isBasic (ctx) {
 	return true;
 }
 
+function clear (ctx, s, x,y, w,h) {
+	ctx.clearRect(x * s, y * s, w * s, h * s);
+}
+function translate (ctx, s, x,y) {
+	ctx.translate(x * s, y * s);
+}
 function drawImage(ctx, img, s, sx,sy, sw,sh, dx,dy, dw,dh) {
 	ctx.drawImage(img, sx * s, sy * s, sw * s, sh * s, dx * s, dy * s, dw * s, dh * s);
 }
 function convert2pre18 (original, output) {
+	let s = original.canvas.width / 64;
 	
+	clear(output, s, 1,3, 2,1); // horn top & bottom
+	clear(output, s, 0,4, 4,4); // horn others
+	clear(output, s, 4,0, 4,8); // cutiemark
+	clear(output, s, 56,0, 8,8); // stomach
+	clear(output, s, 0,16, 12,4); // neck and legs top & bottom
+	clear(output, s, 0,20, 16,12); // legs others
+	clear(output, s, 36,16, 8,4); // butt
+	clear(output, s, 32,20, 8,12); // back
+	
+	
+	// Horn
+	drawImage(output, original.canvas, s, 57,0, 2,1, 1,3, 2,1); // top & bottom
+	drawImage(output, original.canvas, s, 56,1, 4,4, 0,4, 4,4); // others
+	
+	// Cutiemark
+	drawImage(output, original.canvas, s, 0,20, 4,8, 4,0, 4,8);
+	
+	// Neck
+	drawImage(output, original.canvas, s, 24,0, 4,4, 0,16, 4,4);
+	
+	// Hind legs
+	drawImage(output, original.canvas, s, 44,16, 8,4, 4,16, 8,4); // top & bottom
+	drawImage(output, original.canvas, s, 40,20, 16,12, 0,20, 16,12); // others
+	
+	// Stomach and butt
+	output.save();
+	translate(output, s, 56,8);
+	output.scale(1,-1);
+	drawImage(output, original.canvas, s, 24,0, 8,8, 0,0, 8,8);
+	drawImage(output, original.canvas, s, 24,0, 8,4, -20,-12, 8,4);
+	output.restore();
+	
+	// Back
+	output.save();
+	translate(output, s, 40,32);
+	output.rotate(Math.PI);
+	drawImage(output, original.canvas, s, 24,0, 8,4, 0,0, 8,4);
+	drawImage(output, original.canvas, s, 24,0, 8,8, 0,4, 8,8);
+	output.restore();
 }
-function convert2complex (original, output, mirror, basic) {
+function convert2new (original, output, mirror, basic) {
 	if (basic) {
 		convert2pre18(original, output);
 		
 		holder.canvas.width = holder.canvas.height = original.canvas.width;
-		holder.drawImage(original);
+		holder.drawImage(output.canvas, 0,0);
 		original = holder;
 	}
 	
@@ -114,6 +157,19 @@ function convert2complex (original, output, mirror, basic) {
 	output.canvas.width = output.canvas.height = original.canvas.width;
 	
 	output.drawImage(original.canvas, 0,0);
+	
+	// Clear areas
+	// Left hind leg
+	clear(output, s, 20,48, 8, 4); // top & bottom
+	clear(output, s, 16,52,16,12); // other sides
+	
+	// Left foreleg
+	clear(output, s, 36,48, 8, 4); // top & bottom
+	clear(output, s, 32,52,16,12); // outside
+	
+	// Left wing
+	clear(output, s, 58,32,4, 2); // top & bottom
+	clear(output, s, 56,34,8,14); // others
 	
 	if (mirror) {
 		output.save();
@@ -207,26 +263,27 @@ $converter_file.addEventListener('change', function () {
 	img.onload = function () {
 		URL.revokeObjectURL(img.src);
 		
-		if (img.width == img.height) return alert('Can\'t be converted');
-		
 		converter.canvas.width = converter_holder.canvas.width = img.width;
 		converter.canvas.height = converter_holder.canvas.height = img.height;
 		
 		converter.drawImage(img, 0,0);
 		converter_holder.drawImage(img, 0,0);
 		
-		$converter_complex.disabled = !(converter_basic = isBasic(converter));
-		$converter_complex.checked = true;
+		converter_basic = isBasic(converter);
 		
 		converter.canvas.classList.remove('empty');
-		$converter_download.disabled = false;
+		$converter_mirror.disabled = $converter_download.disabled = false;
+		$converter_mirror.checked = true;
 		
-		convert2complex(converter_holder, converter, false, converter_basic);
+		convert2new(converter_holder, converter, $converter_mirror.checked, converter_basic);
 	};
 	img.src = URL.createObjectURL(this.files[0]);
 });
+$converter_mirror.addEventListener('change', function () {
+	convert2new(converter_holder, converter, this.checked, converter_basic);
+});
 
-$converter_download.addEventListener('click', () => save(converter.canvas, $converter_file.files[0].name, $converter_complex.checked ? 'complex' : 'pre-1.8'));
+$converter_download.addEventListener('click', () => save(converter.canvas, $converter_file.files[0].name, 'new'));
 $resizer_download.addEventListener('click', () => save(resizer.canvas, $resizer_file.files[0].name, 'x' + canvas.width));
 
 
