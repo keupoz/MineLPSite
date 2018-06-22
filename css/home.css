@@ -2,39 +2,18 @@
 
 #intro {
 	background: url(../assets/home/ponybanner.png) no-repeat center, url(../assets/home/intropattern.png), #222;
+	clip-path: polygon(0 50px, 100% 0, 100% 100%, 0 calc(100% - 50px));
 	color: white;
 	padding: 50px 0;
 	text-shadow: 0 0 50px rgba(0,0,0,0.5);
 	
 	min-height: 400px;
 	
-	position: relative;
-	
 	display: flex;
 	justify-content: space-between;
 }
-#intro:before, #intro:after {
-	content: '';
-	
-	border-left: 1000px solid white;
-	box-sizing: border-box;
-	
-	width: 100%; height: 50px;
-	
-	position: absolute;
-}
-#intro:before {
-	border-bottom: 50px solid transparent;
-	
-	top: 0;
-}
-#intro:after {
-	border-top: 50px solid transparent;
-	
-	bottom: 0;
-}
 #intro > div {
-	padding: 0 30px 50px;
+	padding: 0 30px 40px;
 	
 	display: flex;
 	flex-direction: column;
@@ -81,6 +60,9 @@
 	text-decoration: none;
 	text-shadow: none;
 }
+a[id^="intro--link__download"]:hover {
+	background-color: white !important;
+}
 #intro--link__download-beta[hidden] {
 	display: none;
 }
@@ -93,6 +75,7 @@
 	
 	font-size: 1rem;
 	font-weight: normal;
+	white-space: pre;
 	
 	position: absolute;
 }

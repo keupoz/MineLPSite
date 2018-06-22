@@ -10,8 +10,6 @@
 
 html {
 	background: whitesmoke;
-	
-	min-widths: 1024px;
 }
 
 body {
@@ -22,7 +20,14 @@ body {
 	margin: auto;
 	padding-top: 5px;
 	
-	width: 1000px; min-height: 100%;
+	width: 1000px;
+	
+	display: flex;
+	flex-direction: column;
+}
+
+#content {
+	flex-grow: 1;
 }
 
 footer {
