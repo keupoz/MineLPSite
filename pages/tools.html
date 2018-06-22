@@ -14,16 +14,18 @@ title: "Tools"
 
 <h2 id="retriever">Skin retriever</h2>
 <p>Here you can get your skin from the Mine Little Pony server. After image is loaded, just click on it to download</p>
-<blockquote><p>It may took a while for the first time</p></blockquote>
+<blockquote><p>It may take a while for the first time</p></blockquote>
 <form id="retriever-form">
 	<div id="retriever-wrapper">
 		<div id="retriever-progress"></div>
 		<input type="text" name="nickname" spellcheck="off" placeholder="Enter your nickname here and press Enter">
 	</div>
 	<button type="submit" name="submit">Retrieve</button>
+	<a id="retriever-convert" href="#converter" disabled>Convert</a>
+	<a id="retriever-resize" href="#resizer" disabled>Resize</a>
 </form>
 <p id="retriever-error"></p>
-<p><img id="retriever-output"></p>
+<p class="margin"><img id="retriever-output"></p>
 
 <h2 id="converter">Skin converter</h2>
 <p>This tool can convert your skin from basic pre-1.8 and pre-1.8 skin layout to the new skin layout</p>
@@ -32,8 +34,9 @@ title: "Tools"
 	<div><input id="converter-file" type="file" accept="image/png"></div>
 	<div><input id="converter-mirror" type="checkbox" disabled>&nbsp;&nbsp;&nbsp;<label for="converter-mirror">Mirror</label></div>
 	<div><button id="converter-download" disabled>Download</button><!--&nbsp;&nbsp;&nbsp;<a href="#resizer" title="Load the result to resizer tool" disabled>Resize</a>--></div>
+	<div><a id="converter-resize" href="#resizer" disabled>Resize</a></div>
 </div>
-<canvas id="converter-output" class="empty" width="512" height="256"></canvas>
+<canvas id="converter-output" class="empty margin" width="512" height="256"></canvas>
 
 <h2 id="resizer">Skin resizer</h2>
 <p>Sometimes you may want to quickly change the size of you skin but you don't have any program for that. Here you can easily resize your skin with keeping trigger pixels work</p>
@@ -45,304 +48,10 @@ title: "Tools"
 <div class="settings">
 	<div>Current size:&nbsp;<span id="resizer-current-size">none</span></div>
 </div>
-<canvas id="resizer-output" class="empty" width="512" height="256"></canvas>
+<canvas id="resizer-output" class="empty margin" width="512" height="256"></canvas>
 
-<script src="{{ '/assets/FileSaver.js' | relative_url }}"></script>
-<script>
-const
-LOG_2 = Math.log(2),
-
-SKINS_URL = 'https://ponyskins.herokuapp.com/';
-
-let
-converter = document.querySelector('#converter-output').getContext('2d'),
-resizer   = document.querySelector('#resizer-output').getContext('2d'),
-
-holder           = document.createElement('canvas').getContext('2d'),
-converter_holder = document.createElement('canvas').getContext('2d'),
-resizer_holder   = document.createElement('canvas').getContext('2d'),
-resizer_pixels   = document.createElement('canvas').getContext('2d'),
-
-$converter_file       = document.querySelector('#converter-file'),
-$converter_mirror     = document.querySelector('#converter-mirror'),
-$converter_download   = document.querySelector('#converter-download'),
-$resizer_file         = document.querySelector('#resizer-file'),
-$resizer_size         = document.querySelector('#resizer-size'),
-$resizer_current_size = document.querySelector('#resizer-current-size'),
-$resizer_download     = document.querySelector('#resizer-download'),
-
-converter_basic = false;
-
-resizer_pixels.canvas.width  = 4;
-resizer_pixels.canvas.height = 2;
-
-function getExponent (number) {
-	number >>= 6;
-	return number ? Math.floor(Math.log(number + 0.5) / LOG_2) : 0;
-}
-
-function isBasic (ctx) {
-	let s = ctx.canvas.width / 64;
-	
-	for (let x = 4 * s; x < 8 * s; x++)
-		for (let y = 0; y < 8 * s; y++)
-			if (ctx.getImageData(x,y,1,1).data.slice(0,3).join(',') != '0,0,0') return false;
-	
-	return true;
-}
-
-function clear (ctx, s, x,y, w,h) {
-	ctx.clearRect(x * s, y * s, w * s, h * s);
-}
-function translate (ctx, s, x,y) {
-	ctx.translate(x * s, y * s);
-}
-function drawImage(ctx, img, s, sx,sy, sw,sh, dx,dy, dw,dh) {
-	ctx.drawImage(img, sx * s, sy * s, sw * s, sh * s, dx * s, dy * s, dw * s, dh * s);
-}
-function convert2pre18 (original, output) {
-	let s = original.canvas.width / 64;
-	
-	clear(output, s, 1,3, 2,1); // horn top & bottom
-	clear(output, s, 0,4, 4,4); // horn others
-	clear(output, s, 4,0, 4,8); // cutiemark
-	clear(output, s, 56,0, 8,8); // stomach
-	clear(output, s, 0,16, 12,4); // neck and legs top & bottom
-	clear(output, s, 0,20, 16,12); // legs others
-	clear(output, s, 36,16, 8,4); // butt
-	clear(output, s, 32,20, 8,12); // back
-	
-	
-	// Horn
-	drawImage(output, original.canvas, s, 57,0, 2,1, 1,3, 2,1); // top & bottom
-	drawImage(output, original.canvas, s, 56,1, 4,4, 0,4, 4,4); // others
-	
-	// Cutiemark
-	drawImage(output, original.canvas, s, 0,20, 4,8, 4,0, 4,8);
-	
-	// Neck
-	drawImage(output, original.canvas, s, 24,0, 4,4, 0,16, 4,4);
-	
-	// Hind legs
-	drawImage(output, original.canvas, s, 44,16, 8,4, 4,16, 8,4); // top & bottom
-	drawImage(output, original.canvas, s, 40,20, 16,12, 0,20, 16,12); // others
-	
-	// Stomach and butt
-	output.save();
-	translate(output, s, 56,8);
-	output.scale(1,-1);
-	drawImage(output, original.canvas, s, 24,0, 8,8, 0,0, 8,8);
-	drawImage(output, original.canvas, s, 24,0, 8,4, -20,-12, 8,4);
-	output.restore();
-	
-	// Back
-	output.save();
-	translate(output, s, 40,32);
-	output.rotate(Math.PI);
-	drawImage(output, original.canvas, s, 24,0, 8,4, 0,0, 8,4);
-	drawImage(output, original.canvas, s, 24,0, 8,8, 0,4, 8,8);
-	output.restore();
-}
-function convert2new (original, output, mirror, basic) {
-	if (basic) {
-		convert2pre18(original, output);
-		
-		holder.canvas.width = holder.canvas.height = original.canvas.width;
-		holder.drawImage(output.canvas, 0,0);
-		original = holder;
-	}
-	
-	let s = output.canvas.width / 64;
-	
-	output.canvas.width = output.canvas.height = original.canvas.width;
-	
-	output.drawImage(original.canvas, 0,0);
-	
-	// Clear areas
-	// Left hind leg
-	clear(output, s, 20,48, 8, 4); // top & bottom
-	clear(output, s, 16,52,16,12); // other sides
-	
-	// Left foreleg
-	clear(output, s, 36,48, 8, 4); // top & bottom
-	clear(output, s, 32,52,16,12); // outside
-	
-	// Left wing
-	clear(output, s, 58,32,4, 2); // top & bottom
-	clear(output, s, 56,34,8,14); // others
-	
-	if (mirror) {
-		output.save();
-		output.scale(-1,1);
-		// Left hind leg
-		drawImage(output, original.canvas, s,  4,16, 4, 4, -20,48,-4, 4); // top
-		drawImage(output, original.canvas, s,  8,16, 4, 4, -24,48,-4, 4); // bottom
-		drawImage(output, original.canvas, s,  0,20, 4,12, -24,52,-4,12); // outside
-		drawImage(output, original.canvas, s,  4,20, 4,12, -20,52,-4,12); // front
-		drawImage(output, original.canvas, s,  8,20, 4,12, -16,52,-4,12); // inside
-		drawImage(output, original.canvas, s, 12,20, 4,12, -28,52,-4,12); // back
-		
-		// Left foreleg
-		drawImage(output, original.canvas, s, 44,16, 4, 4, -36,48,-4, 4); // top
-		drawImage(output, original.canvas, s, 48,16, 4, 4, -40,48,-4, 4); // bottom
-		drawImage(output, original.canvas, s, 40,20, 4,12, -40,52,-4,12); // outside
-		drawImage(output, original.canvas, s, 44,20, 4,12, -36,52,-4,12); // front
-		drawImage(output, original.canvas, s, 48,20, 4,12, -32,52,-4,12); // inside
-		drawImage(output, original.canvas, s, 52,20, 4,12, -44,52,-4,12); // back
-		
-		// Left wing
-		drawImage(output, original.canvas, s, 58,16, 2, 2, -58,32,-2, 2); // top
-		drawImage(output, original.canvas, s, 60,16, 2, 2, -60,32,-2, 2); // bottom
-		drawImage(output, original.canvas, s, 56,18, 2,14, -60,34,-2,14); // outside
-		drawImage(output, original.canvas, s, 58,18, 2,14, -58,34,-2,14); // front
-		drawImage(output, original.canvas, s, 60,18, 2,14, -56,34,-2,14); // inside
-		drawImage(output, original.canvas, s, 62,18, 2,14, -62,34,-2,14); // back
-		output.restore();
-	} else {
-		// Left hind leg
-		drawImage(output, original.canvas, s,  4,16,  8, 4, 20,48, 8, 4); // top & bottom
-		drawImage(output, original.canvas, s,  0,20, 16,12, 16,52,16,12); // other sides
-		
-		// Left foreleg
-		drawImage(output, original.canvas, s, 44,16,  8, 4, 36,48, 8, 4); // top & bottom
-		drawImage(output, original.canvas, s, 40,20, 16,12, 32,52,16,12); // outside
-		
-		// Left wing
-		drawImage(output, original.canvas, s, 58,16, 4, 2, 58,32,4, 2); // top & bottom
-		drawImage(output, original.canvas, s, 56,18, 8,14, 56,34,8,14); // others
-	}
-}
-
-function save (canvas, filename, suffix) {
-	canvas.toBlob(function (blob) {
-		saveAs(blob, filename.replace(/\.png$/, '_' + suffix + '.png'));
-	});
-}
-
-$resizer_file.addEventListener('change', function () {
-	if (!this.files[0]) return;
-	
-	let img = new Image();
-	img.onload = function () {
-		URL.revokeObjectURL(img.src);
-		
-		resizer.canvas.width = resizer_holder.canvas.width = img.width;
-		resizer.canvas.height = resizer_holder.canvas.height = img.height;
-		
-		$resizer_size.value = getExponent(resizer.canvas.width);
-		$resizer_current_size.innerText = resizer.canvas.width + ' x ' + resizer.canvas.height;
-		
-		resizer.drawImage(img, 0,0);
-		resizer_holder.drawImage(img, 0,0);
-		
-		resizer_holder.clearRect(0,0, 4,2);
-		resizer_pixels.clearRect(0,0, 4,2);
-		resizer_pixels.drawImage(img, 0,0, 4,2, 0,0, 4,2);
-		
-		resizer.canvas.classList.remove('empty');
-		$resizer_size.disabled = $resizer_download.disabled = false;
-	};
-	img.src = URL.createObjectURL(this.files[0]);
-});
-$resizer_size.addEventListener('input', function () {
-	resizer.canvas.width = 64 << this.value;
-	if (resizer_holder.canvas.width == resizer_holder.canvas.height) resizer.canvas.height = resizer.canvas.width;
-	else resizer.canvas.height = 32 << this.value;
-	
-	$resizer_current_size.innerText = resizer.canvas.width + ' x ' + resizer.canvas.height;
-	
-	resizer.imageSmoothingEnabled = false;
-	resizer.drawImage(resizer_holder.canvas, 0,0, resizer.canvas.width, resizer.canvas.height);
-	resizer.drawImage(resizer_pixels.canvas, 0,0);
-});
-
-$converter_file.addEventListener('change', function () {
-	if (!this.files[0]) return;
-	
-	let img = new Image();
-	img.onload = function () {
-		URL.revokeObjectURL(img.src);
-		
-		converter.canvas.width = converter_holder.canvas.width = img.width;
-		converter.canvas.height = converter_holder.canvas.height = img.height;
-		
-		converter.drawImage(img, 0,0);
-		converter_holder.drawImage(img, 0,0);
-		
-		converter_basic = isBasic(converter);
-		
-		converter.canvas.classList.remove('empty');
-		$converter_mirror.disabled = $converter_download.disabled = false;
-		$converter_mirror.checked = true;
-		
-		convert2new(converter_holder, converter, $converter_mirror.checked, converter_basic);
-	};
-	img.src = URL.createObjectURL(this.files[0]);
-});
-$converter_mirror.addEventListener('change', function () {
-	convert2new(converter_holder, converter, this.checked, converter_basic);
-});
-
-$converter_download.addEventListener('click', () => save(converter.canvas, $converter_file.files[0].name, 'new'));
-$resizer_download.addEventListener('click', () => save(resizer.canvas, $resizer_file.files[0].name, 'x' + canvas.width));
-
-
-let
-$form     = document.querySelector('#retriever-form'),
-$progress = document.querySelector('#retriever-progress'),
-$img      = document.querySelector('#retriever-output'),
-$error    = document.querySelector('#retriever-error'),
-
-retriever_busy     = false,
-retriever_blob     = null,
-retriever_nickname = '';
-
-$img.addEventListener('load', function () {
-	retriever_busy = $form.submit.disabled = false;
-	$progress.classList.remove('show');
-});
-$img.addEventListener('click', function () {
-	if (retriever_blob) saveAs(retriever_blob, retriever_nickname + '.png');
-});
-
-function processResult (e) {
-	if (this.status == 200) {
-		retriever_blob = this.response;
-		retriever_nickname = this.getResponseHeader('X-Nickname');
-		URL.revokeObjectURL($img.src);
-		$img.src = URL.createObjectURL(retriever_blob);
-		$error.innerText = '';
-	} else {
-		let F = new FileReader();
-		F.onload = function () {
-			$error.innerText = this.result;
-			retriever_busy = $form.submit.disabled = false;
-			$progress.classList.remove('show');
-		};
-		F.readAsText(this.response);
-	}
-}
-
-$form.addEventListener('submit', function (e) {
-	e.preventDefault();
-	
-	if (retriever_busy) return;
-	
-	retriever_busy = this.submit.disabled = true;
-	$progress.style.width = 0;
-	$progress.classList.add('show');
-	
-	this.nickname.blur();
-	
-	let xhr = new XMLHttpRequest();
-	
-	xhr.open('GET', SKINS_URL + this.nickname.value.trim());
-	xhr.responseType = 'blob';
-		
-	xhr.onprogress = function (e) {
-		$progress.style.width = e.loaded / e.total * 100 + '%';
-	};
-	xhr.onload = xhr.onerror = processResult;
-	xhr.send();
-});
-</script>
+<script src="{{ '/js/libs/FileSaver.js' | relative_url }}"></script>
+<script src="{{ '/js/tools/helper.js' | relative_url }}"></script>
+<script src="{{ '/js/tools/retriever.js' | relative_url }}"></script>
+<script src="{{ '/js/tools/converter.js' | relative_url }}"></script>
+<script src="{{ '/js/tools/resizer.js' | relative_url }}"></script>

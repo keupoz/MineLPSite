@@ -1,17 +1,28 @@
 @import 'article.css';
 
+canvas, #retriever-output {
+	image-rendering: -webkit-optimize-contrast;
+	image-rendering: -moz-crisp-edges;
+	image-rendering: -o-crisp-edges;
+	image-rendering: pixelated;
+	image-rendering: optimizeSpeed;
+	image-rendering: crisp-edges;
+	-ms-interpolation-mode: nearest-neighbor;
+}
+
 canvas {
-	background: url(../assets/skintools/transparency.png) top left / 16px;
+	background: url(../assets/transparency.png) top left / 16px;
 	box-shadow: 0 8px 16px rgba(0,0,0,0.1);
 	display: block;
-	image-rendering: pixelated;
 	margin: 10px auto;
 	
 	max-width: 100%;
 }
 button {
 	background: dodgerblue;
+	border-bottom: 5px solid rgba(0,0,0,0.1);
 	border-radius: 5px;
+	box-sizing: border-box;
 	color: white;
 	font: inherit;
 	line-height: 32px;
@@ -20,7 +31,11 @@ button {
 	height: 32px;
 }
 button:active {
-	transform: translateY(2px);
+	border-bottom-width: 0;
+	line-height: 27px;
+}
+#retriever-form button:active {
+	line-height: 45px;
 }
 
 canvas.empty, input:disabled, button:disabled, a[disabled] {
@@ -51,6 +66,11 @@ canvas.empty, input:disabled, button:disabled, a[disabled] {
 
 #retriever-form {
 	display: flex;
+	align-items: center;
+}
+#retriever-convert {
+	display: block;
+	margin: 0 15px;
 }
 #retriever-wrapper {
 	border-radius: 5px;
@@ -98,7 +118,5 @@ canvas.empty, input:disabled, button:disabled, a[disabled] {
 }
 
 #retriever-output {
-	image-rendering: pixelated;
-	
 	min-width: 25%;
 }
