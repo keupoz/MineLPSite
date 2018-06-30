@@ -1,6 +1,6 @@
+name: "Official Mine Little Pony mod site"
 title: "Mine Little Pony: Ponify Minecraft!"
-description: >- # this means to ignore newlines until "baseurl:"
-    
+description: "The Mine Little Pony mod provides you an ability to play Minecraft as pastel-colored horse with customization of your pony!"
 baseurl: "/MineLPSite_demo" # the subpath of your site, e.g. /blog
 url: "https://www.minelittlepony-mod.com" # the base hostname & protocol for your site, e.g. http://example.com
 

@@ -3,6 +3,7 @@ layout: "page"
 css: "home"
 path: ""
 ---
+<!-- Banner -->
 <div id="intro">
 	<div>
 		<h2>Ponify your Minecraft experience!</h2>
@@ -15,17 +16,21 @@ path: ""
 	<div>
 		<h1>Get the mod now!</h1>
 		
+		<!-- Download links -->
 		<a id="intro--link__download" href="https://github.com/MineLittlePony/MineLittlePony/releases" target="_blank">Download</a>
 		<a id="intro--link__download-beta" href="#" download hidden>Pre-release</a>
 		<a id="intro--link__download-liteloader" href="https://www.liteloader.com/download" target="_blank">Get LiteLoader</a>
 		
+		<!-- GitHub links -->
 		<div id="intro--links__mod">
 			<a href="https://github.com/MineLittlePony/MineLittlePony/releases" target="_blank">All releases</a>
 			<a href="https://github.com/MineLittlePony/MineLittlePony" target="_blank">Source code</a>
 		</div>
 		
+		<!-- Flex space -->
 		<div style="flex-grow:1;"></div>
 		
+		<!-- Social links -->
 		<div id="intro--links__social">
 			<a id="intro--link__discord" href="https://discord.gg/HbJSFyu" target="_blank">
 				<img src="{{ '/assets/home/discord_logo.svg' | relative_url }}" type="image/svg+xml">
@@ -36,8 +41,10 @@ path: ""
 	
 </div>
 
+<!-- Introducing cards -->
 <div id="features" class="cards">
 	{% for card in site.data.cards.features %}
+	<!-- Intro card #{{ forloop.index }} -->
 	<div>
 		<img src="{{ '/assets/home/' | append: card.header | append: '.png' | relative_url }}">
 		<img src="{{ '/assets/home/' | append: card.icon | append: '.png' | relative_url }}" style="background:{{ card.color }};">
@@ -49,9 +56,11 @@ path: ""
 
 <hr>
 
+<!-- Extra cards -->
 <div id="links" class="cards">
 	{% for card in site.data.cards.links %}
 		{% if card.hidden != true %}
+		<!-- Extra card #{{ forloop.index }} -->
 		<div class="noicon">
 			{% if card.download %}<a href="{{ card.url | relative_url }}" download>
 			{% else %}<a href="{{ card.url }}" target="_blank">{% endif %}
