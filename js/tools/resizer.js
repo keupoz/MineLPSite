@@ -10,7 +10,9 @@ pixels   = document.createElement('canvas').getContext('2d'),
 $file         = document.querySelector('#resizer-file'),
 $size         = document.querySelector('#resizer-size'),
 $current_size = document.querySelector('#resizer-current-size'),
-$download     = document.querySelector('#resizer-download');
+$download     = document.querySelector('#resizer-download'),
+
+filename = '';
 
 pixels.canvas.width  = 4;
 pixels.canvas.height = 2;
@@ -40,7 +42,9 @@ function loadImage (image) {
 
 $file.addEventListener('change', function () {
 	if (!this.files[0]) return;
-	
+    
+    filename = this.files[0].name;
+    
 	var img = new Image();
 	img.onload = function () {
 		URL.revokeObjectURL(this.src);
@@ -61,7 +65,7 @@ $size.addEventListener('input', function () {
 });
 
 $download.addEventListener('click', function () {
-	save(ctx.canvas, $file.files[0].name, 'x' + ctx.canvas.width);
+	save(ctx.canvas, filename, 'x' + ctx.canvas.width);
 });
 
 
