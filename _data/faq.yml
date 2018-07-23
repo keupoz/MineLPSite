@@ -13,14 +13,16 @@
 - question: "Is there a Forge version?"
   answer: "No. But LiteLoader [can be installed as a Forge mod](http://www.liteloader.com/explore/docs/user:install:forge){:target=\"_blank\"}"
   
-- question: "How to retrieve my skin from the server?"
+- question: "How do I retrieve my skin from the server?"
   answer: "If you are using an official Minecraft account you can do it "
+  # Should be realized better
+  # But data files don't support liquid syntax
   relative_link:
     name: "here"
     url: "/tools/#retriever"
   
-- question: "Where to report bugs?"
-  answer: "You can do it on GitHub [here](https://github.com/MineLittlePony/MineLittlePony/issues){:target=\"_blank\"}"
+- question: "Where do I report bugs?"
+  answer: "You can do it on GitHub [here](https://github.com/MineLittlePony/MineLittlePony/issues){:target=\"_blank\"} or in channel `#bugs` of [Discord server](https://discord.gg/HbJSFyu){:target=\"_blank\"}"
   
 - question: "Does this mod provide any extra abilities?"
   answer: "No, the mod only transforms the player model into pony. It doesn't provide any magical abilities and doesn't allow you to fly in survival mode. But you can find additional mods which do"
